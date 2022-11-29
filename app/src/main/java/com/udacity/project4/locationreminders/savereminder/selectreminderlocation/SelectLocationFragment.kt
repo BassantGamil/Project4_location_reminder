@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
+import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
@@ -55,15 +56,20 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         setDisplayHomeAsUpEnabled(true)
         setupGoogleMap();
 //        TODO: call this function after the user confirms on the selected location
-        onLocationSelected()
-
+        binding.saveButton.setOnClickListener {
+            onLocationSelected()
+        }
         return binding.root
     }
 
     private fun onLocationSelected() {
-        //        TODO: When the user confirms on the selected location,
-        //         send back the selected location details to the view model
-        //         and navigate back to the previous fragment to save the reminder and add the geofence
+
+        marker?.let { marker ->
+            _viewModel.latitude.value = marker.position.latitude
+            _viewModel.longitude.value = marker.position.longitude
+            _viewModel.reminderSelectedLocationStr.value = marker.title
+            _viewModel.navigationCommand.value = NavigationCommand.Back
+        }
     }
 
     private fun setupGoogleMap() {
