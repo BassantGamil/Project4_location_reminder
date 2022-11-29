@@ -84,4 +84,22 @@ class ReminderListFragmentTest : AutoCloseKoinTest() {
             repository.deleteAllReminders()
         }
     }
+
+    private fun getReminder(): ReminderDTO {
+        return ReminderDTO("Home", "Fav place", "Egy", 3.2132, 6.9076)
+    }
+
+    @Test
+    fun onUI_noDataDisplayed() = runBlockingTest {
+
+        val reminder = getReminder()
+        runBlocking {
+            repository.saveReminder(reminder)
+        }
+        launchFragmentInContainer<ReminderListFragment>(Bundle.EMPTY, R.style.AppTheme)
+        onView(withText(reminder.title)).check(matches(isDisplayed()))
+        onView(withText(reminder.description)).check(matches(isDisplayed()))
+        onView(withText(reminder.location)).check(matches(isDisplayed()))
+    }
+
 }
