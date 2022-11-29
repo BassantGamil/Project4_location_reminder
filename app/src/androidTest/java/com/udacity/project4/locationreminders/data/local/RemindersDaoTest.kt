@@ -24,6 +24,7 @@ import org.junit.Test
 //Unit test the DAO
 @SmallTest
 class RemindersDaoTest {
+    val reminder = ReminderDTO("Home", "Fav place", "Egy", 3.2132, 6.9076)
 
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
@@ -40,10 +41,22 @@ class RemindersDaoTest {
         dao = database.reminderDao()
     }
 
-
     @After
     fun closeDb() = database.close()
 
-//    TODO: Add testing implementation to the RemindersDao.kt
+    @Test
+    fun insertLocationAndGetById() = runBlockingTest {
+        database.reminderDao().saveReminder(reminder)
+        val rms = database.reminderDao().getReminderById(reminder.id)
+        assertThat(rms as ReminderDTO, notNullValue())
+        assertThat(rms.id, `is`(reminder.id))
+        assertThat(rms.title, `is`(reminder.title))
+        assertThat(rms.description, `is`(reminder.description))
+        assertThat(rms.location, `is`(reminder.location))
+        assertThat(rms.latitude, `is`(reminder.latitude))
+        assertThat(rms.longitude, `is`(reminder.longitude))
+
+
+    }
 
 }
