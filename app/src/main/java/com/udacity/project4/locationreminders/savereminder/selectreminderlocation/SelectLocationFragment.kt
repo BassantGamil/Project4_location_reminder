@@ -10,6 +10,7 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.common.api.ApiException
@@ -27,6 +28,7 @@ import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
+import kotlinx.android.synthetic.main.fragment_select_location.*
 import org.koin.android.ext.android.inject
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
@@ -35,6 +37,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSelectLocationBinding
 
+    private lateinit var map: GoogleMap
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -49,7 +52,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 //        TODO: add the map setup implementation
 //        TODO: zoom to the user location after taking his permission
-//        TODO: add style to the map
+
         setupGoogleMap();
 //        TODO: put a marker to location that the user selected
 
@@ -73,9 +76,27 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     }
 
-    override fun onMapReady(p0: GoogleMap?) {
-
+    override fun onMapReady(googleMap: GoogleMap?) {
+        map = googleMap!!
+        setMapStyle(map)
     }
+    private fun setMapStyle(map: GoogleMap) {
+        try {
+            val success = map.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    requireContext(),
+                    R.raw.map_style
+                )
+            )
+            if (!success) {
+                Toast.makeText(context, "Style parsing failed.", Toast.LENGTH_LONG).show()
+            }
+
+        } catch (e: Resources.NotFoundException) {
+            Toast.makeText(context, "error $e", Toast.LENGTH_LONG).show()
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.map_options, menu)
     }
@@ -96,8 +117,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
         else -> super.onOptionsItemSelected(item)
     }
-
-
 
 
 }
