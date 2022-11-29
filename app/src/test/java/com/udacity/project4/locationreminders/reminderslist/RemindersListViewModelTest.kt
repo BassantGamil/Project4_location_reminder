@@ -1,13 +1,70 @@
 package com.udacity.project4.locationreminders.reminderslist
 
+import android.app.Application
+import android.os.Bundle
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.udacity.project4.R
+import com.udacity.project4.locationreminders.data.ReminderDataSource
+import com.udacity.project4.locationreminders.data.dto.ReminderDTO
+import com.udacity.project4.locationreminders.data.local.LocalDB
+import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
+import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
+import org.mockito.Mockito
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
 class RemindersListViewModelTest {
 
-    //TODO: provide testing to the RemindersListViewModel and its live data objects
+
+    @get:Rule
+    private val instantExecutor = InstantTaskExecutorRule()
+    private lateinit var repository: ReminderDataSource
+    private lateinit var appContext: Application
+
+    @Before
+    fun init() {
+        stopKoin()
+        appContext = ApplicationProvider.getApplicationContext()
+        val myModule = module {
+            viewModel {
+                RemindersListViewModel(
+                    appContext,
+                    get() as ReminderDataSource
+                )
+            }
+            single {
+                SaveReminderViewModel(
+                    appContext,
+                    get() as ReminderDataSource
+                )
+            }
+            single { RemindersLocalRepository(get()) as ReminderDataSource }
+            single { LocalDB.createRemindersDao(appContext) }
+        }
+
+        startKoin {
+            modules(listOf(myModule))
+        }
+        runBlocking {
+            repository.deleteAllReminders()
+        }
+    }
+
 
 }
