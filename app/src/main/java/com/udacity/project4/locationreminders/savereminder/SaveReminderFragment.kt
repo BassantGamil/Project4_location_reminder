@@ -88,6 +88,9 @@ class SaveReminderFragment : BaseFragment() {
             .setLoiteringDelay(5000)
             .build()
 
+        val goeRequest = GeofencingRequest.Builder().apply {
+            addGeofence(geofence).setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+        }.build()
 
     }
 
