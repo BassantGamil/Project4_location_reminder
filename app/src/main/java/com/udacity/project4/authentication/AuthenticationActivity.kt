@@ -1,7 +1,14 @@
 package com.udacity.project4.authentication
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.firebase.ui.auth.AuthMethodPickerLayout
+import com.firebase.ui.auth.AuthUI
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.R
 
 /**
@@ -13,12 +20,59 @@ class AuthenticationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_authentication)
-//         TODO: Implement the create account and sign in using FirebaseUI, use sign in using email and sign in using Google
+        val firebaseAuth = FirebaseAuth.getInstance()
 
+        var googleSignInClient: GoogleSignInClient
+
+    findViewById<View>(R.id.logIn_email_button).setOnClickListener {
+            LogIn();
+        }
 //          TODO: If the user was authenticated, send him to RemindersActivity
 
 //          TODO: a bonus is to customize the sign in flow to look nice using :
         //https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#custom-layout
 
+    }
+
+
+    private fun LogIn() {
+        startActivityForResult(
+            AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(
+                    listOf(
+                        AuthUI.IdpConfig.EmailBuilder().build(),
+                        AuthUI.IdpConfig.GoogleBuilder().build()
+                    )
+                )
+                .setAuthMethodPickerLayout(
+                    AuthMethodPickerLayout
+                        .Builder(R.layout.activity_authentication)
+                        .setGoogleButtonId(R.id.logIn_google_button)
+                        .setEmailButtonId(R.id.logIn_email_button)
+                        .build()
+                )
+                .setTheme(R.style.AppTheme)
+                .build(),
+            SIGN_IN_RESULT_CODE
+        )
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode != SIGN_IN_RESULT_CODE) {
+            Toast.makeText(this, getString(R.string.Login_failed), Toast.LENGTH_LONG).show()
+            return
+        }
+
+        if (resultCode == RESULT_OK) {
+            Toast.makeText(this, getString(R.string.Successful_login), Toast.LENGTH_LONG).show()
+
+
+        }
+    }
+    companion object {
+        const val SIGN_IN_RESULT_CODE = 1001
     }
 }
