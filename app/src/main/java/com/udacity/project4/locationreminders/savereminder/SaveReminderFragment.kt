@@ -92,6 +92,14 @@ class SaveReminderFragment : BaseFragment() {
             addGeofence(geofence).setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
         }.build()
 
+        client.addGeofences(goeRequest, geofencePendingIntent).run {
+            addOnSuccessListener {
+                Log.d(TAG, "${reminderData.id} success")
+            }
+            addOnFailureListener {
+                Log.d(TAG, "${reminderData.id} Failed")
+            }
+        }
     }
 
 
