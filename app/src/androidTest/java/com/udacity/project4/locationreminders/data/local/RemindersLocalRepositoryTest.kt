@@ -24,7 +24,48 @@ import org.junit.runner.RunWith
 //Medium Test to test the repository
 @MediumTest
 class RemindersLocalRepositoryTest {
+    val reminder = ReminderDTO("Home", "Fav place", "Egy", 3.2132, 6.9076)
 
-//    TODO: Add testing implementation to the RemindersLocalRepository.kt
+    @get:Rule
+    var instantExecutorRule = InstantTaskExecutorRule()
+    private lateinit var database: RemindersDatabase
+    private lateinit var dao: RemindersDao
+    private lateinit var repository: RemindersLocalRepository
+
+    @Before
+    fun initDB() {
+        database = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            RemindersDatabase::class.java
+        ).build()
+
+        dao = database.reminderDao()
+    }
+    fun setup() {
+        database = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            RemindersDatabase::class.java
+        ).allowMainThreadQueries().build()
+
+        repository = RemindersLocalRepository(database.reminderDao(), Dispatchers.Main)
+    }
+
+    @After
+    fun closeDb() = database.close()
+
+    @Test
+    fun saveReminder_retrievesReminder() = runBlocking {
+        repository.saveReminder(reminder)
+  val rms = repository.getReminder(reminder.id)
+        assertThat(rms is Result.Success, `is`(true))
+        rms as Result.Success
+
+
+        assertThat(rms.data.title, `is`(reminder.title))
+        assertThat(rms.data.description, `is`(reminder.description))
+        assertThat(rms.data.latitude, `is`(reminder.latitude))
+        assertThat(rms.data.longitude, `is`(reminder.longitude))
+        assertThat(rms.data.location, `is`(reminder.location))
+    }
 
 }
