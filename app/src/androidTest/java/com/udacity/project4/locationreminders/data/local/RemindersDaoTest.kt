@@ -41,6 +41,8 @@ class RemindersDaoTest {
     }
 
 
+    @After
+    fun closeDb() = database.close()
 
 //    TODO: Add testing implementation to the RemindersDao.kt
 
