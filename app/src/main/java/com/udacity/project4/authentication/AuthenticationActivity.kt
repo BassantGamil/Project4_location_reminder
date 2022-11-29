@@ -7,7 +7,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.firebase.ui.auth.AuthMethodPickerLayout
 import com.firebase.ui.auth.AuthUI
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.R
 
@@ -26,6 +28,15 @@ class AuthenticationActivity : AppCompatActivity() {
 
     findViewById<View>(R.id.logIn_email_button).setOnClickListener {
             LogIn();
+        }
+        findViewById<View>(R.id.logIn_google_button).setOnClickListener {
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build()
+            googleSignInClient = GoogleSignIn.getClient(this, gso)
+            val signInIntent = googleSignInClient.signInIntent
+            startActivityForResult(signInIntent, RC_SIGN_IN)
+
         }
 //          TODO: If the user was authenticated, send him to RemindersActivity
 
@@ -74,5 +85,6 @@ class AuthenticationActivity : AppCompatActivity() {
     }
     companion object {
         const val SIGN_IN_RESULT_CODE = 1001
+        const val RC_SIGN_IN = 100
     }
 }
