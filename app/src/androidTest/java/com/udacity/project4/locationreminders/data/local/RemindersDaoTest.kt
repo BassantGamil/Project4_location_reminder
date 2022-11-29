@@ -25,6 +25,23 @@ import org.junit.Test
 @SmallTest
 class RemindersDaoTest {
 
+    @get:Rule
+    var instantExecutorRule = InstantTaskExecutorRule()
+    private lateinit var database: RemindersDatabase
+    private lateinit var dao: RemindersDao
+
+    @Before
+    fun initDB() {
+        database = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            RemindersDatabase::class.java
+        ).build()
+
+        dao = database.reminderDao()
+    }
+
+
+
 //    TODO: Add testing implementation to the RemindersDao.kt
 
 }

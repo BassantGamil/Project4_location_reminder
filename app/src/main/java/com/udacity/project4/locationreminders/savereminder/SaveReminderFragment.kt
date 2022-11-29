@@ -29,8 +29,8 @@ class SaveReminderFragment : BaseFragment() {
 
     private lateinit var reminderDataItem: ReminderDataItem
 
-    val client = LocationServices.getGeofencingClient(requireContext())
-    val geofencePendingIntent: PendingIntent by lazy {
+    private lateinit var client: GeofencingClient
+    private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
         PendingIntent.getBroadcast(requireContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
@@ -52,6 +52,7 @@ class SaveReminderFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = this
+        client = LocationServices.getGeofencingClient(context!!)
         binding.selectLocation.setOnClickListener {
             //            Navigate to another fragment to get the user location
             _viewModel.navigationCommand.value =
@@ -70,6 +71,7 @@ class SaveReminderFragment : BaseFragment() {
             }
             _viewModel.validateAndSaveReminder(reminderDataItem)
         }
+
     }
 
     @SuppressLint("MissingPermission")
