@@ -43,4 +43,6 @@
     <string name="login_required">Please Login First</string>
     <string name="Login_failed">Login failed</string>
     <string name="Successful_login">Success Login</string>
+    <string name="format_location">Lat: %1$.5f, Long: %2$.5f</string>
+    <string name="my_location">Selected Location</string>
 </resources>

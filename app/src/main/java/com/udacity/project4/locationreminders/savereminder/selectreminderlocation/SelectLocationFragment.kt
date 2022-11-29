@@ -2,15 +2,19 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.Color
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.common.api.ApiException
@@ -30,6 +34,7 @@ import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import kotlinx.android.synthetic.main.fragment_select_location.*
 import org.koin.android.ext.android.inject
+import java.util.*
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
@@ -38,6 +43,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentSelectLocationBinding
 
     private lateinit var map: GoogleMap
+    private var marker: Marker? = null
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -54,9 +62,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 //        TODO: zoom to the user location after taking his permission
 
         setupGoogleMap();
-//        TODO: put a marker to location that the user selected
-
-
 //        TODO: call this function after the user confirms on the selected location
         onLocationSelected()
 
@@ -76,10 +81,21 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     }
 
+    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap?) {
         map = googleMap!!
         setMapStyle(map)
+        setOnMapLongClickListener(map)
+        if (isPermissionGranted()) {
+        } else {
+            this.requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                PERMISSION_CODE_LOCATION_REQUEST
+            )
+        }
     }
+
+
     private fun setMapStyle(map: GoogleMap) {
         try {
             val success = map.setMapStyle(
@@ -95,6 +111,38 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         } catch (e: Resources.NotFoundException) {
             Toast.makeText(context, "error $e", Toast.LENGTH_LONG).show()
         }
+    }
+
+    private fun setOnMapLongClickListener(map: GoogleMap) {
+        map.setOnMapLongClickListener { poi ->
+            map.clear()
+            val snippet = String.format(
+                Locale.getDefault(),
+                getString(R.string.format_location),
+                poi.latitude,
+                poi.longitude
+            )
+            map.addMarker(
+                MarkerOptions()
+                    .position(poi)
+                    .title(getString(R.string.dropped_pin))
+                    .snippet(snippet)
+            )
+            marker?.showInfoWindow()
+            map.animateCamera(CameraUpdateFactory.newLatLng(poi))
+        }
+    }
+
+
+    private fun isPermissionGranted(): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -118,5 +166,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         else -> super.onOptionsItemSelected(item)
     }
 
-
+    companion object {
+        private const val PERMISSION_CODE_LOCATION_REQUEST = 1
+    }
 }
