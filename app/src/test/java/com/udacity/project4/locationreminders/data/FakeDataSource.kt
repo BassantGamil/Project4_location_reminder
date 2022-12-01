@@ -25,8 +25,18 @@ var isReturnError = false
     }
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
-        TODO("Not yet implemented")
+        return if (isReturnError) {
+            Result.Error("Error")
+        } else {
+            val reminder = reminders.find { it.id == id }
+            if (reminder == null) {
+                Result.Error("Not found")
+            } else {
+                Result.Success(reminder)
+            }
+        }
     }
+
 
     override suspend fun deleteAllReminders() {
         TODO("Not yet implemented")
