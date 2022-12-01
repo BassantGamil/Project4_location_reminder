@@ -67,6 +67,4 @@ class RemindersDaoTest {
         Assert.assertThat(rms.latitude, `is`(reminder.latitude))
         Assert.assertThat(rms.longitude, `is`(reminder.longitude))
     }
-
-
 }
