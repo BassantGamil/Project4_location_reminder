@@ -12,7 +12,12 @@ var isReturnError = false
     }
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
-        TODO("Not yet implemented")
+        return if(isReturnError){
+            Result.Error("Error Retrieving Data " , 404)
+        }
+        else{
+            Result.Success(ArrayList(reminders))
+        }
     }
 
     override suspend fun saveReminder(reminder: ReminderDTO) {
