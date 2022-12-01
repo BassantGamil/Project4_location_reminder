@@ -6,6 +6,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import com.udacity.project4.locationreminders.MainCoroutineRule
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.ReminderDataSource
@@ -14,10 +15,10 @@ import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.hamcrest.CoreMatchers
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.notNullValue
+import org.junit.*
 import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin
 import org.mockito.ArgumentMatchers.matches
@@ -28,18 +29,19 @@ class SaveReminderViewModelTest {
 
     val reminder = ReminderDataItem("Home", "Fav place", "Egy", 3.2132, 6.9076)
 
+    private lateinit var fakeDataSource: FakeDataSource
+    private lateinit var viewModel: SaveReminderViewModel
+
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
 
-    private lateinit var rmRep: FakeDataSource
-
-    //Subject under test
-    private lateinit var viewModel: SaveReminderViewModel
+    var mainCoroutineRule = MainCoroutineRule()
 
     @Before
     fun setupViewModel() {
-        rmRep = FakeDataSource()
-        viewModel = SaveReminderViewModel(ApplicationProvider.getApplicationContext(), rmRep)
+        fakeDataSource = FakeDataSource()
+        viewModel =
+            SaveReminderViewModel(ApplicationProvider.getApplicationContext(), fakeDataSource)
     }
 
     @After
@@ -48,8 +50,18 @@ class SaveReminderViewModelTest {
     }
 
     @Test
-    fun validateEnteredData_EmptyTitleAndUpdateSnackBar() {
+    fun validateEnteredData() {
         assertThat(viewModel.validateEnteredData(reminder)).isFalse()
+    }
+
+    @Test
+    fun check_loading() {
+        fakeDataSource = FakeDataSource()
+        viewModel =
+            SaveReminderViewModel(ApplicationProvider.getApplicationContext(), fakeDataSource)
+        mainCoroutineRule.pauseDispatcher()
+        viewModel.validateAndSaveReminder(reminder)
+
     }
 
 }
