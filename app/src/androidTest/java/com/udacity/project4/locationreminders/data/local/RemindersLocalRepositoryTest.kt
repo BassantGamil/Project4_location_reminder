@@ -65,4 +65,5 @@ class RemindersLoRemindersDaoTestcalRepositoryTest {
         assertThat(rms.latitude, `is`(reminder.latitude))
         assertThat(rms.longitude, `is`(reminder.longitude))
     }
+
 }
