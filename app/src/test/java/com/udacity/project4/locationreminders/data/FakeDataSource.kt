@@ -39,6 +39,6 @@ var isReturnError = false
 
 
     override suspend fun deleteAllReminders() {
-        TODO("Not yet implemented")
+        reminders.clear()
     }
 }
