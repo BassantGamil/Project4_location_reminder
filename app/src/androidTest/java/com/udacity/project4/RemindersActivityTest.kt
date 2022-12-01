@@ -15,6 +15,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
+import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
@@ -41,6 +42,7 @@ class RemindersActivityTest :
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
+    val reminder = ReminderDTO("Home", "Fav place", "Egy", 3.2132, 6.9076)
 
     // An idling resource that waits for Data Binding to have no pending bindings.
     private val dataBindingIdlingResource = DataBindingIdlingResource()
@@ -81,56 +83,32 @@ class RemindersActivityTest :
             repository.deleteAllReminders()
         }
     }
-    @Test
-    fun saveReminderScreen_showSnackBarTitleError() {
-
-        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
-        dataBindingIdlingResource.monitorActivity(activityScenario)
-
-        onView(withId(R.id.addReminderFAB)).perform(click())
-        onView(withId(R.id.saveReminder)).perform(click())
-
-        val snackBarMessage = appContext.getString(R.string.err_enter_title)
-        onView(withText(snackBarMessage)).check(matches(isDisplayed()))
-
-        activityScenario.close()
-    }
 
     @Test
-    fun saveReminderScreen_showSnackBarLocationError() {
+    fun showReminderScreenoadingData() {
+        val scenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(scenario)
 
-        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
-        dataBindingIdlingResource.monitorActivity(activityScenario)
+        onView(withText(reminder.title)).check(matches(isDisplayed()))
+        onView(withText(reminder.description)).check(matches(isDisplayed()))
+        onView(withText(reminder.location)).check(matches(isDisplayed()))
 
+        onView(withId(R.id.noDataTextView)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
         onView(withId(R.id.addReminderFAB)).perform(click())
-        onView(withId(R.id.reminderTitle)).perform(typeText("Title"))
-        closeSoftKeyboard()
-        onView(withId(R.id.saveReminder)).perform(click())
-
-        val snackBarMessage = appContext.getString(R.string.err_select_location)
-        onView(withText(snackBarMessage)).check(matches(isDisplayed()))
-
-        activityScenario.close()
-    }
-
-    @Test
-    fun saveReminderScreen_showToastMessage() {
-
-        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
-        dataBindingIdlingResource.monitorActivity(activityScenario)
-        onView(withId(R.id.addReminderFAB)).perform(click())
-        onView(withId(R.id.reminderTitle)).perform(typeText("Title"))
-        closeSoftKeyboard()
-        onView(withId(R.id.reminderDescription)).perform(typeText("Description"))
-        closeSoftKeyboard()
         onView(withId(R.id.selectLocation)).perform(click())
-        onView(withId(R.id.map)).perform(longClick())
         onView(withId(R.id.save_button)).perform(click())
+        onView(withId(R.id.reminderTitle)).perform(typeText("Title"))
+        onView(withId(R.id.reminderDescription)).perform(typeText("Description"))
+
+        closeSoftKeyboard()
+
         onView(withId(R.id.saveReminder)).perform(click())
-        activityScenario.close()
+        onView(withId(R.id.noDataTextView)).check(matches(withEffectiveVisibility(Visibility.GONE)))
+        onView(withText("Title")).check(matches(isDisplayed()))
+        onView(withText("Description")).check(matches(isDisplayed()))
     }
 
-    private fun getActivity(activityScenario: ActivityScenario<RemindersActivity>): Activity {
+     fun getActivity(activityScenario: ActivityScenario<RemindersActivity>): Activity {
         lateinit var activity: Activity
         activityScenario.onActivity {
             activity = it
