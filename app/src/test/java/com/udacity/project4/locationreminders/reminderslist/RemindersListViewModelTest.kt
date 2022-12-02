@@ -24,7 +24,7 @@ import org.koin.core.context.stopKoin
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
 class RemindersListViewModelTest {
-
+    //make sample of fake data
     val reminder = ReminderDTO("Home", "Fav place", "Egy", 3.2132, 6.9076)
 
     @get:Rule
@@ -46,6 +46,12 @@ class RemindersListViewModelTest {
         fakeDataSource = FakeDataSource()
         viewModel =
             RemindersListViewModel(ApplicationProvider.getApplicationContext(), fakeDataSource)
+    }
+
+    //stop for koin
+    @After
+    fun tearDown() {
+        stopKoin()
     }
 
     //show data when saved successfully
