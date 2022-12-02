@@ -17,12 +17,12 @@ class FakeDataSource(
         }
     }
 
-    //save data in mutable list of reminder
+    //save each data in mutable list of reminder
     override suspend fun saveReminder(reminder: ReminderDTO) {
         reminders.add(reminder)
     }
 
-    //get item of reminder by id
+    //get item of reminder by id to check if found data or not by this id
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
         return if (isReturnError) {
             //If there is Exception.
@@ -38,7 +38,6 @@ class FakeDataSource(
             }
         }
     }
-
 
     override suspend fun deleteAllReminders() {
         //Clear all reminders data
