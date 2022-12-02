@@ -28,6 +28,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -43,19 +44,31 @@ import org.mockito.Mockito.verify
 //UI Testing
 @MediumTest
 class ReminderListFragmentTest : AutoCloseKoinTest() {
+    //make sample of fake data
     val reminder = ReminderDTO("Home", "Fav place", "Egy", 3.2132, 6.9076)
 
-    @get:Rule
-    private val instantExecutor = InstantTaskExecutorRule()
+    // Use a fake repository to be injected to the viewModel
     private lateinit var repository: ReminderDataSource
+
+    //app context from application
     private lateinit var appContext: Application
+
+    // An idling resource that waits for Data Binding to have no pending bindings
     private val dbBinding = DataBindingIdlingResource()
 
+    @get:Rule
+    // Executes each task synchronously using Architecture Components
+    private val instantExecutor = InstantTaskExecutorRule()
+
+
+    //As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
+    // at this step we will initialize Koin related code to be able to use it in out testing.
     @Before
     fun init() {
         stopKoin()
         appContext = getApplicationContext()
         val myModule = module {
+            //Declaring a ViewModel be later injected into Fragment with dedicated injector using by viewModel()
             viewModel {
                 RemindersListViewModel(
                     appContext,
@@ -72,21 +85,22 @@ class ReminderListFragmentTest : AutoCloseKoinTest() {
             single { LocalDB.createRemindersDao(appContext) }
         }
 
+        //Declaring koin module
         startKoin {
+            androidContext(getApplicationContext())
             modules(listOf(myModule))
         }
-
+        //Get the Repository
         repository = get()
-
-
+        //reset the fake dataSource
         runBlocking {
             repository.deleteAllReminders()
         }
     }
 
+    //verify navigate to launch reminderListFragment
     @Test
     fun clickFABToNavigateToSaveReminderFragment() {
-
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
         val navController = mock(NavController::class.java)
         scenario.onFragment {
@@ -98,17 +112,17 @@ class ReminderListFragmentTest : AutoCloseKoinTest() {
         )
     }
 
+    //display ui
     @Test
     fun dataDisplayedOnUi() = runBlockingTest {
-
         repository.saveReminder(reminder)
-
         launchFragmentInContainer<ReminderListFragment>(Bundle.EMPTY, R.style.AppTheme)
         onView(withText(reminder.title)).check(matches(isDisplayed()))
         onView(withText(reminder.description)).check(matches(isDisplayed()))
         onView(withText(reminder.location)).check(matches(isDisplayed()))
     }
 
+    //check when save data
     @Test
     fun checkSaveButton() {
         val scenario =
@@ -123,15 +137,14 @@ class ReminderListFragmentTest : AutoCloseKoinTest() {
         verify(navController).navigate(ReminderListFragmentDirections.toSaveReminder())
     }
 
+    //show error message when bundle is empty
     @Test
     fun errorMessageShowNoData() {
         val scenario =
             launchFragmentInContainer<ReminderListFragment>(Bundle.EMPTY, R.style.AppTheme)
         val navController = mock(NavController::class.java)
-
         dbBinding.monitorFragment(scenario)
         scenario.onFragment { Navigation.setViewNavController(it.view!!, navController) }
-
         onView(withText("No Data")).check(matches(isDisplayed()))
     }
 }
