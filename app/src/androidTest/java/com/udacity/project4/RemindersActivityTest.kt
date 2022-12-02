@@ -4,12 +4,17 @@ import android.app.Activity
 import android.app.Application
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.core.app.launchActivity
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.withDecorView
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -84,8 +89,10 @@ class RemindersActivityTest :
         }
     }
 
+
+    //Add End to End testing to the app
     @Test
-    fun showReminderScreenoadingData() {
+    fun showReminderScreenLoadingData() {
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(scenario)
 
@@ -108,11 +115,26 @@ class RemindersActivityTest :
         onView(withText("Description")).check(matches(isDisplayed()))
     }
 
-     fun getActivity(activityScenario: ActivityScenario<RemindersActivity>): Activity {
+    fun getActivity(activityScenario: ActivityScenario<RemindersActivity>): Activity {
         lateinit var activity: Activity
         activityScenario.onActivity {
             activity = it
         }
         return activity
+    }
+
+    @Test
+    fun validationErrorTest() {
+        val activityScenario = launchActivity<RemindersActivity>()
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        onView(withId(R.id.addReminderFAB)).perform(click())
+        onView(withId(R.id.saveReminder)).perform(click())
+
+        //val message = appContext.getString(R.string.err_enter_title)
+        onView(withText(R.string.err_enter_title))
+            .check(matches(isDisplayed()))
+
+        activityScenario.close()
     }
 }

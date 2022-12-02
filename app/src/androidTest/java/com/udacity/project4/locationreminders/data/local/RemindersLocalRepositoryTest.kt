@@ -19,10 +19,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 //Medium Test to test the repository
 @MediumTest
-class RemindersLoRemindersDaoTestcalRepositoryTest {
+class RemindersLoRemindersDaoTestLocalRepositoryTest {
+
+    //make sample of fake data
     val reminder = ReminderDTO("Home", "Fav place", "Egy", 3.2132, 6.9076)
 
     @get:Rule
+    // Executes each task synchronously using Architecture Components.
     var instantExecutorRule = InstantTaskExecutorRule()
     private lateinit var database: RemindersDatabase
     private lateinit var repository: RemindersLocalRepository
