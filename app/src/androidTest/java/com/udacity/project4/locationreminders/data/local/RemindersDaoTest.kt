@@ -22,9 +22,11 @@ import org.junit.*
 //Unit test the DAO
 @SmallTest
 class RemindersDaoTest {
+    //make sample of fake data
     val reminder = ReminderDTO("Home", "Fav place", "Egy", 3.2132, 6.9076)
 
     @get:Rule
+    // Executes each task synchronously using Architecture Components.
     var instantExecutorRule = InstantTaskExecutorRule()
     private lateinit var database: RemindersDatabase
     private lateinit var dao: RemindersDao
@@ -42,7 +44,7 @@ class RemindersDaoTest {
     @After
     fun closeDb() = database.close()
 
-
+    //insert data details in reminder item and save it
     @Test
     fun insertReminderByIdTest() = runBlockingTest {
         dao.saveReminder(reminder)
@@ -56,6 +58,7 @@ class RemindersDaoTest {
 
     }
 
+    //get data details from reminder item by id
     @Test
     fun getDataByReminderByIdTest() = runBlockingTest {
         dao.saveReminder(reminder)
