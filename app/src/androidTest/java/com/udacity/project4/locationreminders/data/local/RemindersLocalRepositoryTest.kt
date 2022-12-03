@@ -43,7 +43,7 @@ class RemindersLoRemindersDaoTestLocalRepositoryTest {
     @After
     fun closeDb() = database.close()
 
-
+    //insert data details in reminder item and save it
     @Test
     fun insertReminder() = runBlockingTest {
         repository.saveReminder(reminder)
@@ -57,6 +57,7 @@ class RemindersLoRemindersDaoTestLocalRepositoryTest {
 
     }
 
+    //get data details from reminder item by id
     @Test
     fun getDataByReminderSuccess() = runBlockingTest {
         repository.saveReminder(reminder)
