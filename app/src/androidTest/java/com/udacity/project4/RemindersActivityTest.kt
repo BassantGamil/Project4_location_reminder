@@ -2,6 +2,7 @@ package com.udacity.project4
 
 import android.app.Activity
 import android.app.Application
+import androidx.annotation.StringRes
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.core.app.launchActivity
@@ -38,6 +39,7 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
 import org.koin.test.get
+import java.lang.Math.random
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -89,30 +91,26 @@ class RemindersActivityTest :
         }
     }
 
+    //pass args to function to make check on item and show message
+    fun checkSnackBarTextMatches(@StringRes stringRes: Int) {
+        onView(withId(R.id.snackbar_text))
+            .check(matches(withText(stringRes)))
+    }
 
-    //Add End to End testing to the app
+    //implement data from reminder and check on title,description and location
     @Test
-    fun showReminderScreenLoadingData() {
-        val scenario = ActivityScenario.launch(RemindersActivity::class.java)
-        dataBindingIdlingResource.monitorActivity(scenario)
-
-        onView(withText(reminder.title)).check(matches(isDisplayed()))
-        onView(withText(reminder.description)).check(matches(isDisplayed()))
-        onView(withText(reminder.location)).check(matches(isDisplayed()))
-
-        onView(withId(R.id.noDataTextView)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+    fun startTest() {
+        onView(withId(R.id.reminderssRecyclerView)).check(matches(isDisplayed()))
         onView(withId(R.id.addReminderFAB)).perform(click())
+        val title = "My work location ${random()}"
+        val description = "This is my work location ${random()}"
+        onView(withId(R.id.reminderTitle)).perform(typeText(title))
+        onView(withId(R.id.reminderDescription)).perform(typeText(description))
         onView(withId(R.id.selectLocation)).perform(click())
         onView(withId(R.id.save_button)).perform(click())
-        onView(withId(R.id.reminderTitle)).perform(typeText("Title"))
-        onView(withId(R.id.reminderDescription)).perform(typeText("Description"))
-
-        closeSoftKeyboard()
-
         onView(withId(R.id.saveReminder)).perform(click())
-        onView(withId(R.id.noDataTextView)).check(matches(withEffectiveVisibility(Visibility.GONE)))
-        onView(withText("Title")).check(matches(isDisplayed()))
-        onView(withText("Description")).check(matches(isDisplayed()))
+        onView(withText(title)).check(matches(isDisplayed()))
+        onView(withText(description)).check(matches(isDisplayed()))
     }
 
     fun getActivity(activityScenario: ActivityScenario<RemindersActivity>): Activity {
@@ -123,18 +121,29 @@ class RemindersActivityTest :
         return activity
     }
 
+    //check on validation for title filed and show error message on by pass message in params for function snackbar
     @Test
-    fun validationErrorTest() {
-        val activityScenario = launchActivity<RemindersActivity>()
-        dataBindingIdlingResource.monitorActivity(activityScenario)
-
+    fun testSaveReminderWithEmptyTitle() {
+        onView(withId(R.id.reminderssRecyclerView)).check(matches(isDisplayed()))
         onView(withId(R.id.addReminderFAB)).perform(click())
+        val title = "This is my work location ${random()}"
+        onView(withId(R.id.reminderDescription)).perform(typeText(title))
+        Espresso.pressBack()
         onView(withId(R.id.saveReminder)).perform(click())
+        checkSnackBarTextMatches(R.string.err_enter_title)
+    }
 
-        //val message = appContext.getString(R.string.err_enter_title)
-        onView(withText(R.string.err_enter_title))
-            .check(matches(isDisplayed()))
-
-        activityScenario.close()
+    //check on validation for set location filed and show error message on by pass message in params for function snackbar
+    @Test
+    fun testSaveReminderWithNotSelectedLocation() {
+        onView(withId(R.id.reminderssRecyclerView)).check(matches(isDisplayed()))
+        onView(withId(R.id.addReminderFAB)).perform(click())
+        val title = "My work location ${random()}"
+        val description = "This is my work location ${random()}"
+        onView(withId(R.id.reminderTitle)).perform(typeText(title))
+        onView(withId(R.id.reminderDescription)).perform(typeText(description))
+        Espresso.pressBack()
+        onView(withId(R.id.saveReminder)).perform(click())
+        checkSnackBarTextMatches(R.string.err_select_location)
     }
 }
