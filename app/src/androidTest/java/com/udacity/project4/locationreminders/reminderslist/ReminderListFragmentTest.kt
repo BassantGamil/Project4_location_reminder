@@ -112,7 +112,8 @@ class ReminderListFragmentTest : AutoCloseKoinTest() {
         )
     }
 
-    //display ui
+    //load data in repo and launch ui of reminder container in List Fragment with data details( title, description and location)
+    // after checking on them that matches Views that are currently displayed on the screen to the user.
     @Test
     fun dataDisplayedOnUi() = runBlockingTest {
         repository.saveReminder(reminder)
@@ -122,22 +123,27 @@ class ReminderListFragmentTest : AutoCloseKoinTest() {
         onView(withText(reminder.location)).check(matches(isDisplayed()))
     }
 
-    //check when save data
+    //check when save data that get from reminder
+    // Create mock object of given navController::class to Navigation flows and destinations are determined by the navigation graph owned by the controller
+    //Create ViewInteraction for button fab that save data of reminder using perform and given action click()
+    //navigate to right direction with saved data of reminder
     @Test
     fun checkSaveButton() {
         val scenario =
             launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
         val navController = mock(NavController::class.java)
-
         scenario.onFragment {
             Navigation.setViewNavController(it.view!!, navController)
         }
-
         onView(withId(R.id.addReminderFAB)).perform(click())
         verify(navController).navigate(ReminderListFragmentDirections.toSaveReminder())
     }
 
-    //show error message when bundle is empty
+    //show error message when bundle is empty from get data from reminder
+    // after Creating mock object of given navController::class to Navigation flows and destinations are determined by the navigation graph owned by the controller
+    // monitor fragment of scenario that contain on launch reminder list fragment to data binding
+    // use it if not found data in fragment
+
     @Test
     fun errorMessageShowNoData() {
         val scenario =
