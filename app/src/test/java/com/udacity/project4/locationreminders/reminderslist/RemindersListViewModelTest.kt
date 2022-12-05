@@ -65,17 +65,6 @@ class RemindersListViewModelTest {
         )
     }
 
-    //show error when use fake repo will return error message because data is failed to load
-    @Test
-    fun shouldReturnError() = runBlockingTest {
-        fakeDataSource.isReturnError = true
-        viewModel.loadReminders()
-        MatcherAssert.assertThat(
-            viewModel.showSnackBar.value,
-            CoreMatchers.`is`("Error Exception Retrieving Data")
-        )
-    }
-
     //assert data when loading it using dispatcher
     @Test
     fun loadReminders_showLoading() = mainCoroutineRule.runBlockingTest {

@@ -143,7 +143,6 @@ class ReminderListFragmentTest : AutoCloseKoinTest() {
     // after Creating mock object of given navController::class to Navigation flows and destinations are determined by the navigation graph owned by the controller
     // monitor fragment of scenario that contain on launch reminder list fragment to data binding
     // use it if not found data in fragment
-
     @Test
     fun errorMessageShowNoData() {
         val scenario =
